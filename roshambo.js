@@ -5,8 +5,8 @@
 
 //// Global Variables
 
-// var userName = prompt('Please enter user name.');
 var userChoice = '';
+var userPreviousChoice = '';
 var computerChoice = '';
 var scoreKeep = {
   userEngagementWins: [0],
@@ -16,23 +16,33 @@ var scoreKeep = {
   userMatchWins: [0],
   computerMatchWins: [0]
 };
-var userName = 'Sir Xavier Roshambo Wallace';
-var computerName = 'The Dreaded ROSHAMBOT v3.1';
+var userName = 'William "Roshambo" Wallace';
+var computerName = 'ROSHAM-BOT 3K';
 var boutCount = 1;
+var compEngagementWin = false;
 
 //// Functions
 
 function log(message) {
   document.write('<p>' + message + '</p>');
 };
+
 function boldLog(message) {
   document.write('<p><b>' + message + '</b></p>');
 };
 
 function setupGame() {
   userName = prompt('Please enter username: ');
-  boldLog('Hello ' + userName + '!');
-  boldLog('Today you will be facing our computer, ' + computerName + ' in Roshambo!');
+  if(userName != ''){
+    boldLog('Hello ' + userName + '!');
+    boldLog('Today you will be facing our computer, ' + computerName + ' in Roshambo!');
+    alert('You are playing Roshambo! Win 2 out of 3 Engagements to win the Bout! Win \
+2 out of 3 Bouts to win the Match! Good Luck! Our Advanced AI is tough!')
+    rsbMatch();
+  } else {
+    boldLog('Please enter a username to play Roshambo!');
+    boldLog('Press CMD + R to refresh your browser and play again!');
+  }
 }
 
 function userThrow() {
@@ -71,51 +81,71 @@ function computerThrow() {
   return computerChoice;
 };
 
-function AdvancedComputerThrow() {
-  computerThrow();
-
+function advancedComputerThrow() {
+  if(userPreviousChoice === '') {
+    computerThrow();
+  } else if(compEngagementWin === true) {
+    computerChoice = userPreviousChoice;
+  } else if(compEngagementWin === false) {
+    if(userPreviousChoice === 'rock') {
+      computerChoice = 'paper';
+    } else if(userPreviousChoice === 'paper') {
+      computerChoice = 'scissors';
+    } else {
+      computerChoice = 'rock';
+    }
+  }
+  return computerChoice;
 }
 
 function updateScore(player){
   if(player === 'user'){
     scoreKeep.userEngagementWins[0] += 1;
-    //log(userName + ' wins the engagement!');
   } else {
     scoreKeep.computerEngagementWins[0] += 1;
-    //log(computerName + ' wins the engagement!');
   }
-  // log('user: ' + scoreKeep.userScore);
-  // log('computer: ' + scoreKeep.computerScore);
 }
 
 function engagement(throwA, throwB) {
   if(throwA === 'exit'){
     boldLog('Press CMD + R to refresh your browser and play again!');
   } else {
-    log('(user) ' + throwA + ' --- ' + throwB + ' (computer)');
+    //if(userChoice != 'Woops!'){
+      log('(user) ' + throwA + ' --- ' + throwB + ' (computer)');
+    //}
     if(throwA === throwB) {
-      log('Draw! Go again.');
-      engagement(userThrow(), computerThrow());
+      //log('(user) ' + throwA + ' --- ' + throwB + ' (computer)') + boldLog(' Draw!');
+      alert('Draw! Go again.');
+      engagement(userThrow(), computerThrow());     //Advanced AI randomizes on draw
     } else if(throwA === 'rock') {
+      userPreviousChoice = userChoice;
       if(throwB === 'scissors') {
         updateScore('user');
+        compEngagementWin = false;
       } else {
         updateScore('computer');
+        compEngagementWin = true;
       }
     } else if(throwA === 'paper') {
+      userPreviousChoice = userChoice;
       if(throwB === 'rock') {
         updateScore('user');
+        compEngagementWin = false;
       } else {
         updateScore('computer');
+        compEngagementWin = true;
       }
     } else if(throwA === 'scissors') {
+      userPreviousChoice = userChoice;
       if(throwB === 'paper') {
         updateScore('user');
+        compEngagementWin = false;
       } else {
         updateScore('computer');
+        compEngagementWin = true;
       }
     } else {
-      log('Woops! Please try again.');
+      alert('Woops! Please try again.');             // Advanced AI randomizes on mis-entry
        engagement(userThrow(), computerThrow());
     }
   }
@@ -123,8 +153,9 @@ function engagement(throwA, throwB) {
 
 function bout(numba) {
   boldLog('BOUT #' + numba + '!');
-  while(scoreKeep.userEngagementWins[0] < 2 && scoreKeep.computerEngagementWins[0] < 2 && userChoice != 'exit') {
-    engagement(userThrow(), computerThrow());
+  while(scoreKeep.userEngagementWins[0] < 2 && scoreKeep.computerEngagementWins[0] <
+      2 && userChoice != 'exit') {
+    engagement(userThrow(), advancedComputerThrow());
   }
   if(scoreKeep.userEngagementWins[0] === 2){
     scoreKeep.userBoutWins[0] += 1;
@@ -150,6 +181,8 @@ function rsbMatch() {
     scoreKeep.computerMatchWins[0] += 1;
     boldLog(computerName + ' WINS THE MATCH!');
   }
+  boldLog('User Match Wins:     ' + scoreKeep.userMatchWins[0]);              // code for leaderboard (doesn't carry between matches)
+  boldLog('Computer Match Wins: ' + scoreKeep.computerMatchWins[0]);
   scoreKeep.userBoutWins[0] = 0;
   scoreKeep.computerBoutWins[0] = 0;
   boutCount = 1;
@@ -183,4 +216,3 @@ function playAgain() {
 }
 
 setupGame();
-rsbMatch();
